@@ -1,3 +1,6 @@
+gnrd_api_url: 'http://localhost:4567/name_finder'
+environment: development
+
 development:
   adapter: mysql2
   host: localhost

@@ -1,0 +1,55 @@
+IV 
+
+74. Papilio, Plebejus urbicola, bromios. 
+
+75. Papilio, Danaus candidus, xanthe 
+
+76. Phalaena, Bombyx, pellucida. 
+
+77. Phalaena, Noctua, tessellata. 
+
+78. Phalaena, Tortrix, flammeana. 
+
+79. Phalaena, Bombyx, zelica. 
+
+80. Phalaena, Tinea, cicadella. 
+
+81. Glaucopis, Sphinx adscita, diaphana. 
+
+82. Papilio, Plebejus urbicola, fantasos. 
+
+83. Phalaena, Noctua, dicolon. 
+
+84. Phalaena, Noctua, plügma. 
+
+85. Glaucopis, Sphinx adscita, Cassandra. 
+
+86. Papilio, Plebejus caudatus, cethegüs. 
+
+87. Phalaena, Noctua, nedroptera. 
+
+88. Phalaena, Geometra, quadripunctata. 
+
+89. Phalaena, Noctua, incurva. 
+
+90. Papilio, Plebejus urbicola, longicakba. 
+
+91. Phalaena, Tortrix, fdnerana. 
+
+92. Papilio, Nymphalis phaleratus, eresimüs. 
+
+93. Phalaena, Bombyx, eutropia. 
+
+94. Papilio, Plebejus urbicola, cerialis. 
+
+95. Papilio, Plebejus urbicola, tetrastigma . 
+
+96. Sphinx, Sphinx alis integris, picta. 
+
+97. Glaucopis, Sphinx adscita, atekrima. 
+
+98. Phalaena, Noctua, incerta. 
+
+99. Phalaena, Pyralis, zebra. 
+ 100. Phalaena, Noctua, bactris. 
+
