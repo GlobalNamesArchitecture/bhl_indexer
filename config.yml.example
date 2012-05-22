@@ -1,0 +1,23 @@
+development:
+  adapter: mysql2
+  host: localhost
+  user: root
+  password:
+  database: bhl_indexer_dev
+
+test:
+  adapter: mysql2
+  host: localhost
+  user: root
+  password:
+  database: bhl_indexer_test
+
+production:
+  adapter: mysql2
+  host: localhost
+  user: root
+  password:
+  database: bhl_indexer
+  
+  
+  
