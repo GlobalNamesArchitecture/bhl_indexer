@@ -5,6 +5,7 @@ require 'mysql2'
 require 'active_record'
 require 'rest_client'
 require 'json'
+require 'find'
 
 module BHLIndexer
   
@@ -21,13 +22,15 @@ module BHLIndexer
   root_path = File.expand_path(File.dirname(__FILE__))
   CONF_DATA = BHLIndexer.symbolize_keys(YAML.load(open(File.join(root_path, 'config.yml')).read))
   conf = CONF_DATA
-  environment = conf[:environment] || 'development'
-  db_settings = conf[environment.to_sym]
+  environment = ENV['env'] || conf[:environment] || 'development'
   Config = OpenStruct.new(
                  :gnrd_api_url => conf[:gnrd_api_url],
                  :root_path => root_path,
+                 :root_file_path => conf[:root_file_path],
+                 :environment => environment,
                )
   # load models
+  db_settings = conf[Config.environment.to_sym]
   ActiveRecord::Base.logger = Logger.new(STDOUT, :debug)
   ActiveRecord::Base.establish_connection(db_settings)
   $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
