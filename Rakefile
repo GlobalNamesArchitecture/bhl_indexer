@@ -26,20 +26,19 @@ namespace :generate do
     content = "class #{class_name} < ActiveRecord::Migration
   def up
   end
-  
+
   def down
   end
 end
-"
+    "
     f.write(content)
     puts "Generated migration %s" % path
     f.close
- end
+  end
 end
 
 namespace :db do
   require 'active_record'
-  conf = YAML.load(open(File.join(File.expand_path(File.dirname(__FILE__)), 'config.yml')).read)
   desc "Migrate the database"
   task(:migrate => :environment) do
     ActiveRecord::Base.logger = Logger.new(STDOUT)
@@ -48,29 +47,34 @@ namespace :db do
   end
 
   namespace :drop do
-    task(:all) do
-      conf.each do |k, v| 
-        if ['0.0.0.0', '127.0.0.1', 'localhost'].include?(v['host'].strip)
-          database = v.delete('database')
+    task(:all => :environment) do
+      conf = BHLIndexer::CONF_DATA
+      [:development, :test, :production].each do |k|
+        v = conf[k]
+        if ['0.0.0.0', '127.0.0.1', 'localhost'].include?(v[:host].strip)
+          v = v.dup
+          database = v.delete(:database)
           ActiveRecord::Base.establish_connection(v)
           ActiveRecord::Base.connection.execute("drop database if exists  #{database}")
         end
       end
     end
   end
-  
+
   namespace :create do
-    task(:all) do
-      conf.each do |k, v| 
-        if ['0.0.0.0', '127.0.0.1', 'localhost'].include?(v['host'].strip)
-          database = v.delete('database')
+    task(:all => :environment) do
+      conf = BHLIndexer::CONF_DATA
+      [:development, :test, :production].each do |k|
+        v = conf[k]
+        if ['0.0.0.0', '127.0.0.1', 'localhost'].include?(v[:host].strip)
+          v = v.dup
+          database = v.delete(:database)
           ActiveRecord::Base.establish_connection(v)
           ActiveRecord::Base.connection.execute("create database if not exists  #{database}")
         end
       end
     end
   end
-
 end
 
 task :environment do
