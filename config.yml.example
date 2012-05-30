@@ -1,6 +1,6 @@
-environment: development
 gnrd_api_url: 'http://localhost:4567/name_finder'
 root_file_path: '/stuff'
+carousel_size: 20
 
 development:
   adapter: mysql2

@@ -1,3 +1,11 @@
+== setting things up
+
+    rake db:drop:all
+    rake db:create:all
+    rake db:migrate
+    rake db:migrate BHL_ENV=test
+
+
 BHL indexer
 MIT License
 

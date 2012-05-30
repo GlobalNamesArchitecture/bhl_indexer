@@ -1,7 +1,9 @@
 class Title < ActiveRecord::Base
   has_many :pages
-  
-  STATUS = {0 => 'entered', 1 => 'enqueued', 2 => 'success', 3 => 'failure'}
+  attr_accessor :gnrd_url, :names
+  after_initialize :concatenate_pages
+
+  STATUS = { init: 0, enqueued: 1, completed: 2, failed: 3 } 
   
   def self.populate
     root_path = BHLIndexer::Config.root_file_path
@@ -24,4 +26,38 @@ class Title < ActiveRecord::Base
     end
   end
 
+  def send_text
+    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => 0, :unique => false)
+    res = JSON.parse(res, :symbolize_names => true)
+    @gnrd_url = res[:url]
+  end
+
+  def get_names
+    return unless @gnrd_url
+    @names = JSON.parse(RestClient.get(@gnrd_url), :symbolize_names => true)[:names]
+  end
+
+  def make_pages
+    return unless @names
+  end
+
+  def concatenated_text
+    @concatenator.concatenated_text
+  end
+
+  def pages_offsets
+    @concatenator.pages_offsets
+  end
+
+  def pages_ids
+    @concatenator.pages_ids
+  end
+
+  private
+
+  def concatenate_pages
+    @gnrd_url = nil
+    @concatenator = BHLIndexer::Concatenator.new(File.join(BHLIndexer::Config.root_file_path, path))
+    @concatenator.concatenate
+  end
 end

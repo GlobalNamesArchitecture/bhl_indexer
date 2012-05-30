@@ -22,12 +22,13 @@ module BHLIndexer
   root_path = File.expand_path(File.dirname(__FILE__))
   CONF_DATA = BHLIndexer.symbolize_keys(YAML.load(open(File.join(root_path, 'config.yml')).read))
   conf = CONF_DATA
-  environment = ENV['env'] || conf[:environment] || 'development'
+  environment = ENV['BHL_ENV'] || 'development'
   Config = OpenStruct.new(
                  :gnrd_api_url => conf[:gnrd_api_url],
                  :root_path => root_path,
                  :root_file_path => conf[:root_file_path],
                  :environment => environment,
+                 :carousel_size => conf[:carousel_size]
                )
   # load models
   db_settings = conf[Config.environment.to_sym]
