@@ -40,7 +40,7 @@ describe Title do
       title.get_names
       next unless title.names
       title.names.class.should == Array
-      title.names.first.should == {:verbatim=>"Arachnida", :scientificName=>"Arachnida", :offsetStart=>698, :offsetEnd=>706}
+      title.names.first.should == {:verbatim=>"Arachnida.", :scientificName=>"Arachnida", :offsetStart=>698, :offsetEnd=>707, :identifiedName=>"Arachnida"}
       title.names_to_pages
       title.pages[7].name_strings.should_not be_nil
       bad_offsets = PageNameString.all.select do |n| 

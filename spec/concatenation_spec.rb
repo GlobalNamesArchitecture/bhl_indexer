@@ -21,8 +21,9 @@ describe "Concatenator" do
   end
 
   it "should have the same offsets count as TaxonFinder" do
+    @concatenator.concatenate
     res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => @concatenator.concatenated_text, :engine => 1, :unique => false)
-    url = JSON.parse(res, :symbolize_names => true)[:url]
+    url = JSON.parse(res, :symbolize_names => true)[:token_url]
     sleep(20)
     names = JSON.parse(RestClient.get(url), :symbolize_names => true)[:names]
     @concatenator.concatenated_text[names.last[:offsetStart]..names.last[:offsetEnd]].should == names.last[:verbatim]
@@ -30,7 +31,7 @@ describe "Concatenator" do
   
   it "should have the same offsets count as NetiNeti" do
     res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => @concatenator.concatenated_text, :engine => 2, :unique => false)
-    url = JSON.parse(res, :symbolize_names => true)[:url]
+    url = JSON.parse(res, :symbolize_names => true)[:token_url]
     sleep(20)
     names = JSON.parse(RestClient.get(url), :symbolize_names => true)[:names]
     @concatenator.concatenated_text[names.last[:offsetStart]..names.last[:offsetEnd]].should == names.last[:verbatim]

@@ -30,7 +30,7 @@ class Title < ActiveRecord::Base
   def send_text
     res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => 0, :unique => false)
     res = JSON.parse(res, :symbolize_names => true)
-    @gnrd_url = res[:url]
+    @gnrd_url = res[:token_url]
   end
 
   def get_names
