@@ -6,7 +6,7 @@ class CreateNameStrings < ActiveRecord::Migration
       `name_bank_id` int(11) UNSIGNED,
       `eol_id` int(11) UNSIGNED,
       `gni_id` varchar(255),
-      `status` tinyint,
+      `status` tinyint DEFAULT 0,
       `created_at` datetime DEFAULT NULL,
       `updated_at` datetime DEFAULT NULL,
       PRIMARY KEY (`id`),

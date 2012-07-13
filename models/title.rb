@@ -11,15 +11,16 @@ class Title < ActiveRecord::Base
     inside_title = false
     current_full_dir = nil
     current_internet_archive_id = nil
+    current_title = nil
     Find.find(".").each do |f|
       if File.file?(f) && !inside_title
         inside_title = true
-#        page = File.basename(f)
         current_full_dir = File.dirname(f)
         current_internet_archive_id = current_full_dir.split("/")[-1]
-        Title.create(:path => current_full_dir, :internet_archive_id => current_internet_archive_id)
-#      elsif File.file?(f) && inside_title
-#        page = File.basename(f)
+        current_title = Title.create(:path => current_full_dir, :internet_archive_id => current_internet_archive_id)
+        # Page.create(:title_id => current_title, :page_id => File.basename(f, '.txt'))
+      # elsif File.file?(f) && inside_title
+      #   Page.create(:title_id => current_title.id, :page_id => File.basename(f, '.txt'))
       elsif !File.file?(f) && inside_title
         inside_title = false
       end
@@ -35,10 +36,34 @@ class Title < ActiveRecord::Base
   def get_names
     return unless @gnrd_url
     @names = JSON.parse(RestClient.get(@gnrd_url), :symbolize_names => true)[:names]
+    @names = @names.sort_by { |name| name[:offsetStart] } unless @names.blank?
   end
 
-  def make_pages
-    return unless @names
+  def names_to_pages
+    return if @names.blank?
+    prev_offset = 0
+    current_name = @names.shift
+    pages_offsets.each_with_index do |offset, i|
+      if current_name && current_name[:offsetStart] <= offset
+        while current_name[:offsetStart] <= offset
+          name_offset_start = current_name[:offsetStart] - prev_offset
+          coeff = prev_offset
+          ends_next_page = false
+          if current_name[:offsetEnd] > offset
+            ends_next_page = true
+            coeff = offset
+          end
+          name_offset_end = current_name[:offsetEnd] - coeff
+          if !current_name[:scientificName].empty?
+            name_string = NameString.find_or_create_by_name(current_name[:scientificName])
+            PageNameString.create(:page_id => pages_ids[i], :name_string_id => name_string.id, :name_offset_start => name_offset_start, :name_offset_end => name_offset_end, :ends_next_page => ends_next_page)
+          end
+          current_name = @names.shift
+          break unless current_name
+        end
+      end
+      prev_offset = offset
+    end
   end
 
   def concatenated_text
@@ -51,6 +76,14 @@ class Title < ActiveRecord::Base
 
   def pages_ids
     @concatenator.pages_ids
+  end
+
+  def create_pages
+    if Page.where(:title_id => id).limit(1).empty?
+      all_pages = @concatenator.pages_ids.map { |p| "(#{id}, #{Title.connection.quote(p)})" }.join(",")
+      Title.connection.execute("insert into pages (title_id, id) values #{all_pages}")
+      reload
+    end
   end
 
   private

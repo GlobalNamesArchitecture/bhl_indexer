@@ -8,7 +8,7 @@ describe Title do
   end
   
   before(:each) do
-    ActiveRecord::Base.connection.execute("truncate table titles")
+    nuke_data
   end
 
   it "should initialize" do
@@ -19,11 +19,16 @@ describe Title do
     title.pages_offsets.first.should == 3
     title.pages_ids.first.should == 'journalofentomol14pomo_0001'
     title.gnrd_url.should be_nil
+    title.pages.count.should == 0
+    title.create_pages
+    title.pages.count.should > 0
+    title.pages.first.id.should == 'journalofentomol14pomo_0001'
   end
 
   it "should send request to gnrd, and get intermediate and final response" do
     Title.populate
     title = Title.first
+    title.create_pages
     title.gnrd_url.should be_nil
     title.send_text
     title.gnrd_url.match(BHLIndexer::Config.gnrd_api_url).should be_true
@@ -36,9 +41,17 @@ describe Title do
       next unless title.names
       title.names.class.should == Array
       title.names.first.should == {:verbatim=>"Arachnida", :scientificName=>"Arachnida", :offsetStart=>698, :offsetEnd=>706}
-      title.make_pages
+      title.names_to_pages
+      title.pages[7].name_strings.should_not be_nil
+      bad_offsets = PageNameString.all.select do |n| 
+        offset_average = (n.name_offset_start + n.name_offset_end)/2
+        offset_average < 0 || offset_average > 3000
+      end
+      bad_offsets.size.should == 0
       success = true
     end
+    require 'ruby-debug'; debugger
+    puts ''
   end
   
   context "#populate" do
