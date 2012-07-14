@@ -1,4 +1,5 @@
 gnrd_api_url: 'http://localhost:4567/name_finder'
+resolver_api_url: 'http://resolver.globalnames.org/name_resolvers.json'
 root_file_path: '/stuff'
 carousel_size: 20
 

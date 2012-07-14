@@ -45,29 +45,31 @@ class Title < ActiveRecord::Base
     return if @names.blank?
     prev_offset = 0
     current_name = @names.shift
-    pages_offsets.each_with_index do |offset, i|
-      if current_name && current_name[:offsetStart] <= offset
-        while current_name[:offsetStart] <= offset
-          name_offset_start = current_name[:offsetStart] - prev_offset
-          coeff = prev_offset
-          ends_next_page = false
-          if current_name[:offsetEnd] > offset
-            ends_next_page = true
-            coeff = offset
-          end
-          name_offset_end = current_name[:offsetEnd] - coeff
-          if !current_name[:scientificName].empty?
-            name = NameString.normalize(current_name[:scientificName])
-            if name
-              name_string = NameString.find_or_create_by_name(name)
-              PageNameString.create(:page_id => pages_ids[i], :name_string_id => name_string.id, :name_offset_start => name_offset_start, :name_offset_end => name_offset_end, :ends_next_page => ends_next_page)
+    Title.transaction do
+      pages_offsets.each_with_index do |offset, i|
+        if current_name && current_name[:offsetStart] <= offset
+          while current_name[:offsetStart] <= offset
+            name_offset_start = current_name[:offsetStart] - prev_offset
+            coeff = prev_offset
+            ends_next_page = false
+            if current_name[:offsetEnd] > offset
+              ends_next_page = true
+              coeff = offset
             end
+            name_offset_end = current_name[:offsetEnd] - coeff
+            if !current_name[:scientificName].empty?
+              name = NameString.normalize(current_name[:scientificName])
+              if name
+                name_string = NameString.find_or_create_by_name(name)
+                PageNameString.create(:page_id => pages_ids[i], :name_string_id => name_string.id, :name_offset_start => name_offset_start, :name_offset_end => name_offset_end, :ends_next_page => ends_next_page)
+              end
+            end
+            current_name = @names.shift
+            break unless current_name
           end
-          current_name = @names.shift
-          break unless current_name
         end
+        prev_offset = offset
       end
-      prev_offset = offset
     end
     self.status = Title::STATUS[:completed]
     self.save!

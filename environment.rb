@@ -27,6 +27,7 @@ module BHLIndexer
   environment = ENV['BHL_ENV'] || 'development'
   Config = OpenStruct.new(
                  :gnrd_api_url => conf[:gnrd_api_url],
+                 :resolver_api_url => conf[:resolver_api_url],
                  :root_path => root_path,
                  :root_file_path => conf[:root_file_path],
                  :environment => environment,

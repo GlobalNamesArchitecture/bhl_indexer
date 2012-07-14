@@ -1,6 +1,7 @@
 class NameString < ActiveRecord::Base
   has_many :page_name_strings
 
+  STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 } 
   def self.normalize(name_string)
     name_ary = name_string.split(" ")
     words_num = name_ary.size
