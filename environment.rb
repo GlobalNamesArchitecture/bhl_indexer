@@ -7,6 +7,7 @@ require 'composite_primary_keys'
 require 'rest_client'
 require 'json'
 require 'find'
+require 'unicode_utils'
 
 module BHLIndexer
   

@@ -32,8 +32,8 @@ describe Title do
     title.gnrd_url.should be_nil
     title.send_text
     title.gnrd_url.match(BHLIndexer::Config.gnrd_api_url).should be_true
-    title.get_names
-    title.names.should == nil
+    # title.get_names
+    # title.names.should == nil
     success = false
     while !success do 
       sleep(10)
@@ -50,8 +50,6 @@ describe Title do
       bad_offsets.size.should == 0
       success = true
     end
-    require 'ruby-debug'; debugger
-    puts ''
   end
   
   context "#populate" do

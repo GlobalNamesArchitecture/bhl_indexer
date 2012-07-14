@@ -3,7 +3,7 @@ class Title < ActiveRecord::Base
   attr_accessor :gnrd_url, :names
   after_initialize :concatenate_pages
 
-  STATUS = { init: 0, enqueued: 1, completed: 2, failed: 3 } 
+  STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 } 
   
   def self.populate
     root_path = BHLIndexer::Config.root_file_path
@@ -31,6 +31,8 @@ class Title < ActiveRecord::Base
     res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => 0, :unique => false)
     res = JSON.parse(res, :symbolize_names => true)
     @gnrd_url = res[:token_url]
+    self.status = Title::STATUS[:sent]
+    self.save!
   end
 
   def get_names
@@ -55,8 +57,11 @@ class Title < ActiveRecord::Base
           end
           name_offset_end = current_name[:offsetEnd] - coeff
           if !current_name[:scientificName].empty?
-            name_string = NameString.find_or_create_by_name(current_name[:scientificName])
-            PageNameString.create(:page_id => pages_ids[i], :name_string_id => name_string.id, :name_offset_start => name_offset_start, :name_offset_end => name_offset_end, :ends_next_page => ends_next_page)
+            name = NameString.normalize(current_name[:scientificName])
+            if name
+              name_string = NameString.find_or_create_by_name(name)
+              PageNameString.create(:page_id => pages_ids[i], :name_string_id => name_string.id, :name_offset_start => name_offset_start, :name_offset_end => name_offset_end, :ends_next_page => ends_next_page)
+            end
           end
           current_name = @names.shift
           break unless current_name
@@ -64,6 +69,8 @@ class Title < ActiveRecord::Base
       end
       prev_offset = offset
     end
+    self.status = Title::STATUS[:completed]
+    self.save!
   end
 
   def concatenated_text

@@ -46,6 +46,7 @@ GEM
     ruby_core_source (0.1.5)
       archive-tar-minitar (>= 0.5.2)
     tzinfo (0.3.33)
+    unicode_utils (1.3.0)
 
 PLATFORMS
   ruby
@@ -57,3 +58,4 @@ DEPENDENCIES
   rest-client
   rspec
   ruby-debug19
+  unicode_utils
