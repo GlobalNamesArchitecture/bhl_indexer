@@ -17,6 +17,10 @@ describe BHLIndexer::ResolverClient do
   end
 
   it "should get information about names from resolver" do
+    ResolvedCanonicalForm.count.should == 0
+    ResolvedNameString.count.should == 0
     @resolver.process_batch
+    ResolvedCanonicalForm.count.should > 500
+    ResolvedNameString.count.should > 1000
   end
 end

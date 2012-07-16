@@ -12,9 +12,39 @@ module BHLIndexer
       NameString.connection.execute("update name_strings set status = 1 where id in (%s)" % ids)
       names_batch = ids_names.map { |i| i.join("|") }.join("\n")
       resource = RestClient::Resource.new(@url, timeout: 9_000_000, open_timeout: 9_000_000, connection: "Keep-Alive")
-      r = resource.post(:names => names_batch, :data_source_ids => "12|169", :with_context => false, :resolve_once => false)
-      r = JSON.parse(r, :symbolize_names => true)
-      puts r
+      puts names_batch
+      r = resource.post(:data => names_batch, :with_context => false, :resolve_once => false)
+      r = JSON.parse(r, :symbolize_names => true) rescue nil
+      if r[:data]
+        found_ids = []
+        records = []
+        r[:data].each do |d|
+          name_string_id = d[:supplied_id]
+          found_ids << name_string_id
+          if d[:results]
+            bhl, other = d[:results].partition { |i| [12, 169].include?(i[:data_source_id].to_i) }
+            if bhl.empty?
+              i = other[0]
+              canonical_form_id = nil
+              unless i[:canonical_form].empty?
+                canonical_form_id = ResolvedCanonicalForm.find_or_create_by_name(i[:canonical_form]).id
+              end
+              records << [name_string_id.to_i, i[:data_source_id].to_i, i[:local_id], i[:gni_uuid], canonical_form_id, i[:name_string], i[:score].to_f * 1000, i[:match_type]].map { |i| Title.connection.quote(i) }.join(',')
+            else
+              bhl.each do |i|
+                canonical_form_id = nil
+                if i[:canonical_form] and i[:canonical_form] != ""
+                  canonical_form_id = ResolvedCanonicalForm.find_or_create_by_name(i[:canonical_form]).id
+                end
+                records << [name_string_id.to_i, i[:data_source_id].to_i, i[:local_id].gsub("urn:lsid:ubio.org:namebank:",''), i[:gni_uuid] , canonical_form_id, i[:name_string], i[:score].to_f * 1000, i[:match_type]].map {|i| Title.connection.quote(i)}.join(',')
+              end
+            end
+          end
+        end
+        
+        Title.connection.execute("INSERT IGNORE resolved_name_strings (name_string_id, data_source_id, local_id, gni_id, canonical_form_id, name, score, match_type) values (#{records.join('),(')})")
+        Title.connection.execute("update name_strings set status = #{NameString::STATUS[:completed]} where id in (#{found_ids.join(',')})")
+      end
     end
   end
 end
