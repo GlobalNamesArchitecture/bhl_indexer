@@ -23,4 +23,8 @@ describe BHLIndexer::ResolverClient do
     ResolvedCanonicalForm.count.should > 500
     ResolvedNameString.count.should > 1000
   end
+
+  it "should be able to process files which failed first time" do
+    @resolver.process_failed_batches
+  end
 end

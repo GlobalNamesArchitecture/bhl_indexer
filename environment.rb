@@ -35,7 +35,7 @@ module BHLIndexer
                )
   # load models
   db_settings = conf[Config.environment.to_sym]
-  ActiveRecord::Base.logger = Logger.new(STDOUT, :debug)
+  ActiveRecord::Base.logger = Logger.new(STDOUT, :debug) if environment == 'test'
   ActiveRecord::Base.establish_connection(db_settings)
   $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
   $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib', 'bhl_indexer'))
