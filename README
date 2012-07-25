@@ -5,6 +5,9 @@
     rake db:migrate
     rake db:migrate BHL_ENV=test
 
+== executing
+
+  Go see the scripts in /bin
 
 BHL indexer
 MIT License
