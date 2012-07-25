@@ -30,6 +30,8 @@ describe Title do
     Title.populate
     title = Title.first
     title.language.name.should == 'English'
+    require 'ruby-debug'; debugger
+    puts ''
     title.create_pages
     title.gnrd_url.should be_nil
     title.send_text
