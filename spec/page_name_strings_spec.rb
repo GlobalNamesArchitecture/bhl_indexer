@@ -2,11 +2,11 @@
 require_relative "./spec_helper"
 
 describe PageNameString do
-  
+
   before(:each) do 
     nuke_data
   end
-
+  
   it "should initialize" do 
     Title.populate
     ns = NameString.create(:name => "Betula uglia")

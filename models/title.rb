@@ -1,5 +1,6 @@
 class Title < ActiveRecord::Base
   has_many :pages
+  has_one :language, :foreign_key => "internet_archive_id"
   attr_accessor :names
   after_initialize :concatenate_pages
 
@@ -28,7 +29,8 @@ class Title < ActiveRecord::Base
   end
 
   def send_text
-    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => 0, :unique => false)
+    engine = (self.language.name == 'English') ? 0 : 1
+    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => engine, :unique => false)
     res = JSON.parse(res, :symbolize_names => true)
     self.gnrd_url = res[:token_url]
     self.status = Title::STATUS[:sent]
@@ -104,4 +106,5 @@ class Title < ActiveRecord::Base
     @concatenator = BHLIndexer::Concatenator.new(File.join(BHLIndexer::Config.root_file_path, path))
     @concatenator.concatenate
   end
+
 end

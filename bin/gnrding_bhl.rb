@@ -17,8 +17,10 @@ if ['yes','y','yeah'].include?(a)
   Title.connection.execute("truncate table page_name_strings")
   Title.connection.execute("truncate table resolved_canonical_forms")
   Title.connection.execute("truncate table resolved_name_strings")
+  Title.connection.execute("truncate table languages")
 end
 Title.populate
+Language.populate
 carousel = BHLIndexer::Carousel.new
 carousel.herd_size = 10
 carousel.populate

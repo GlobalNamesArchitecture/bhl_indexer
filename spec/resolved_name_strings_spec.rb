@@ -3,7 +3,7 @@ require_relative "./spec_helper"
 
 describe ResolvedNameString do
   
-  before(:each) do 
+  before(:each) do
     nuke_data
     @ns = NameString.create(:name => "Pomatomus saltator")
     @cf = ResolvedCanonicalForm.create(:name => "Pomatomus saltator")

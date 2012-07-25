@@ -2,11 +2,11 @@
 require_relative "./spec_helper"
 
 describe Page do
-  
+
   before(:each) do
     nuke_data
   end
-
+  
   it "should be able to create pages" do
     Title.populate
     t = Title.first

@@ -16,7 +16,7 @@ module BHLIndexer
       @files.each do |f|
         file = open(f, 'r:utf-8')
         file_text = file.read
-        prev_size = @pages_offsets.empty? ? 0 : @pages_offsets.last 
+        prev_size = @pages_offsets.empty? ? 0 : @pages_offsets.last
         @pages_ids << File.basename(f, '.txt')
         @pages_offsets << prev_size + file_text.size
         @concatenated_text << file_text

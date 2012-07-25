@@ -6,7 +6,7 @@ describe Title do
     BHLIndexer::Config.respond_to?(:root_file_path).should be_true
     BHLIndexer::Config.root_file_path = File.join(File.dirname(__FILE__), 'files/bhl_sample/')
   end
-  
+
   before(:each) do
     nuke_data
   end
@@ -15,6 +15,7 @@ describe Title do
     Title.populate
     title = Title.all[1]
     title.should_not be_nil
+    title.language.name.should == 'English'
     title.concatenated_text[0..10].should == "\r\r\nBound at"
     title.pages_offsets.first.should == 3
     title.pages_ids.first.should == 'journalofentomol14pomo_0001'
@@ -28,6 +29,7 @@ describe Title do
   it "should send request to gnrd, and get intermediate and final response" do
     Title.populate
     title = Title.first
+    title.language.name.should == 'English'
     title.create_pages
     title.gnrd_url.should be_nil
     title.send_text
