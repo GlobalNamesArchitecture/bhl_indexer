@@ -21,6 +21,7 @@ RSpec.configure do |config|
   end
 
   config.after(:suite) do
+    nuke_data
     Title.connection.execute("truncate table languages")
   end
 end

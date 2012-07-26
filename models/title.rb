@@ -14,6 +14,7 @@ class Title < ActiveRecord::Base
     current_internet_archive_id = nil
     current_title = nil
     Find.find(".").each do |f|
+      next if f == "./.DS_Store"
       if File.file?(f) && !inside_title
         inside_title = true
         current_full_dir = File.dirname(f)
