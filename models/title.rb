@@ -1,6 +1,5 @@
 class Title < ActiveRecord::Base
   has_many :pages
-  has_one :language, :foreign_key => "internet_archive_id"
   attr_accessor :names
   after_initialize :concatenate_pages
 
@@ -19,7 +18,8 @@ class Title < ActiveRecord::Base
         inside_title = true
         current_full_dir = File.dirname(f)
         current_internet_archive_id = current_full_dir.split("/")[-1]
-        current_title = Title.create(:path => current_full_dir, :internet_archive_id => current_internet_archive_id)
+        language = Language.find_by_internet_archive_id(current_internet_archive_id).name rescue nil
+        current_title = Title.create(:path => current_full_dir, :internet_archive_id => current_internet_archive_id, :language => language)
         # Page.create(:title_id => current_title, :page_id => File.basename(f, '.txt'))
       # elsif File.file?(f) && inside_title
       #   Page.create(:title_id => current_title.id, :page_id => File.basename(f, '.txt'))
@@ -30,7 +30,7 @@ class Title < ActiveRecord::Base
   end
 
   def send_text
-    engine = (self.language.name == 'English') ? 0 : 1
+    engine = (self.language == 'English') ? 0 : 1
     res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => engine, :unique => false)
     res = JSON.parse(res, :symbolize_names => true)
     self.gnrd_url = res[:token_url]

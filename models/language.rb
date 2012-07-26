@@ -1,5 +1,4 @@
 class Language < ActiveRecord::Base
-  belongs_to :title, :foreign_key => "internet_archive_id"
 
   def self.populate
     sql = "LOAD DATA INFILE '#{File.join(BHLIndexer::Config.root_path, 'db', 'BHLItemLanguage.csv')}' INTO TABLE languages FIELDS TERMINATED BY ',' (internet_archive_id, name)"
