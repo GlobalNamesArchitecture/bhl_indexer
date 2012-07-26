@@ -16,7 +16,7 @@ end
 RSpec.configure do |config|
   config.before(:suite) do
     Title.connection.execute("truncate table languages")
-    sql = "LOAD DATA INFILE '#{File.join(BHLIndexer::Config.root_path, 'db', 'BHLItemLanguage3.csv')}' INTO TABLE languages FIELDS TERMINATED BY ',' (internet_archive_id, name)"
+    sql = "LOAD DATA INFILE '#{File.join(BHLIndexer::Config.root_path, 'db', 'BHLItemLanguage.csv')}' INTO TABLE languages FIELDS TERMINATED BY ',' (internet_archive_id, name)"
     ActiveRecord::Base.connection.execute sql
   end
 
