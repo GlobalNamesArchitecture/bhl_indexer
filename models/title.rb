@@ -3,7 +3,8 @@ class Title < ActiveRecord::Base
   attr_accessor :names
   after_initialize :concatenate_pages
 
-  STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 } 
+  STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 }
+  LANGUAGES_FOR_NETINETI = ['English', 'German', 'Polish', 'Swedish']
   
   def self.populate
     root_path = BHLIndexer::Config.root_file_path
@@ -30,8 +31,9 @@ class Title < ActiveRecord::Base
   end
 
   def send_text
-    engine = (self.language == 'English') ? 0 : 1
-    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :format => 'json', :text => concatenated_text, :engine => engine, :unique => false)
+    params = { :format => 'json', :text => concatenated_text, :engine => 0, :unique => false }
+    params.merge!({ :engine => 1 }) if !LANGUAGES_FOR_NETINETI.include? self.language
+    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params)
     res = JSON.parse(res, :symbolize_names => true)
     self.gnrd_url = res[:token_url]
     self.status = Title::STATUS[:sent]
@@ -42,7 +44,6 @@ class Title < ActiveRecord::Base
     return unless gnrd_url
     res = JSON.parse(RestClient.get(gnrd_url), :symbolize_names => true)
     @names = res[:names]
-    # @names = @names.sort_by { |name| name[:offsetStart] } unless @names.blank?
   end
 
   def names_to_pages
