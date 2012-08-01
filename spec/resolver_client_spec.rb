@@ -7,7 +7,7 @@ describe BHLIndexer::ResolverClient do
     Title.populate
     @resolver = BHLIndexer::ResolverClient.new
     @carousel = BHLIndexer::Carousel.new
-    @carousel.herd_size = 3
+    @carousel.herd_size = 4
     @carousel.populate
     @carousel.send_texts
     until @carousel.carousel_ary.empty?
@@ -22,9 +22,11 @@ describe BHLIndexer::ResolverClient do
     @resolver.process_batch
     ResolvedCanonicalForm.count.should > 500
     ResolvedNameString.count.should > 1000
+    require 'ruby-debug'; debugger
+    puts ''
   end
 
-  it "should be able to process files which failed first time" do
-    @resolver.process_failed_batches
-  end
+  # it "should be able to process files which failed first time" do
+  #   @resolver.process_failed_batches
+  # end
 end

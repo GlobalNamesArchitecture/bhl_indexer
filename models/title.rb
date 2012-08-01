@@ -30,8 +30,14 @@ class Title < ActiveRecord::Base
   end
 
   def send_text
-    params = { :format => 'json', :text => concatenated_text, :engine => 0, :detect_language => false, :unique => false }
-    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params)
+    # params = { :format => 'json', :text => concatenated_text, :engine => 0, :detect_language => false, :unique => false }
+    params = { :text => concatenated_text, :engine => 0, :detect_language => false, :unique => false }
+    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
+      if [302, 303].include? response.code
+        url = response.headers[:location]
+        RestClient.get(url.gsub("name_finder?token", "name_finder.json?token"))
+      end
+    end
     res = JSON.parse(res, :symbolize_names => true)
     self.gnrd_url = res[:token_url]
     self.status = Title::STATUS[:sent]
@@ -42,6 +48,7 @@ class Title < ActiveRecord::Base
     return unless gnrd_url
     res = JSON.parse(RestClient.get(gnrd_url), :symbolize_names => true)
     @names = res[:names]
+    @is_english = res[:english]
   end
 
   def names_to_pages
@@ -92,6 +99,8 @@ class Title < ActiveRecord::Base
   end
 
   def create_pages
+    self.english = @is_english
+    self.save!
     if Page.where(:title_id => id).limit(1).empty?
       all_pages = @concatenator.pages_ids.map { |p| "(#{id}, #{Title.connection.quote(p)})" }.join(",")
       Title.connection.execute("insert into pages (title_id, id) values #{all_pages}")

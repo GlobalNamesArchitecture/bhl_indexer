@@ -12,7 +12,7 @@ resolver = BHLIndexer::ResolverClient.new
 
 rows_num = 1
 until rows_num == 0
-  rows_num = resolver.process_failed_batches(1)
+  rows_num = resolver.process_failed_batches(10)
 end
 
 
