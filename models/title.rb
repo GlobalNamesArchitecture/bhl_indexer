@@ -57,29 +57,37 @@ class Title < ActiveRecord::Base
     prev_offset = 0
     current_name = @names.shift
     Title.transaction do
-      pages_offsets.each_with_index do |offset, i|
-        if current_name && current_name[:offsetStart] <= offset
-          while current_name[:offsetStart] <= offset
-            name_offset_start = current_name[:offsetStart] - prev_offset
-            coeff = prev_offset
-            ends_next_page = false
-            if current_name[:offsetEnd] > offset
-              ends_next_page = true
-              coeff = offset
-            end
-            name_offset_end = current_name[:offsetEnd] - coeff
-            if !current_name[:scientificName].empty?
-              name = NameString.normalize(current_name[:scientificName])
-              if name
-                name_string = NameString.find_or_create_by_name(name)
-                PageNameString.create(:page_id => pages_ids[i], :name_string_id => name_string.id, :name_offset_start => name_offset_start, :name_offset_end => name_offset_end, :ends_next_page => ends_next_page)
+      # PerfTools::CpuProfiler.start("/tmp/add_numbers_profile") do
+        pages_offsets.each_with_index do |offset, i|
+          if current_name && current_name[:offsetStart] <= offset
+            while current_name[:offsetStart] <= offset
+              name_offset_start = current_name[:offsetStart] - prev_offset
+              coeff = prev_offset
+              ends_next_page = false
+              if current_name[:offsetEnd] > offset
+                ends_next_page = true
+                coeff = offset
               end
+              name_offset_end = current_name[:offsetEnd] - coeff
+              require 'ruby-debug'; debugger if current_name[:scientificName] == false
+              if !current_name[:scientificName].empty?
+                name = NameString.normalize(current_name[:scientificName])
+                if name
+                  name_quoted = NameString.connection.quote(name)
+                  name_string_id = NameString.connection.select_values("select id from name_strings where name = %s limit 1" % name_quoted)[0]
+                  unless name_string_id
+                    NameString.connection.execute("insert into name_strings (name, created_at, updated_at) values (%s, now(), now())" % name_quoted)  
+                    name_string_id = "last_insert_id()"
+                  end
+                  PageNameString.connection.execute("insert into page_name_strings (page_id, name_string_id, name_offset_start, name_offset_end, ends_next_page, updated_at, created_at) values ('%s', %s, %s, %s, %s, now(), now())" % [pages_ids[i], name_string_id, name_offset_start, name_offset_end, ends_next_page])
+                end
+              end
+              current_name = @names.shift
+              break unless current_name
             end
-            current_name = @names.shift
-            break unless current_name
-          end
+          # end
+          prev_offset = offset
         end
-        prev_offset = offset
       end
     end
     self.status = Title::STATUS[:completed]

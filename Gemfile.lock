@@ -25,6 +25,7 @@ GEM
     mime-types (1.18)
     multi_json (1.3.5)
     mysql2 (0.3.11)
+    perftools.rb (2.0.0)
     rest-client (1.6.7)
       mime-types (>= 1.16)
     rspec (2.10.0)
@@ -55,6 +56,7 @@ DEPENDENCIES
   activerecord (~> 3.2.3)
   composite_primary_keys (>= 4.0.0)
   mysql2
+  perftools.rb
   rest-client
   rspec
   ruby-debug19
