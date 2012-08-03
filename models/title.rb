@@ -13,7 +13,7 @@ class Title < ActiveRecord::Base
     current_internet_archive_id = nil
     current_title = nil
     Find.find(".").each do |f|
-      next if f == "./.DS_Store"
+      next if f.include? "DS_Store"
       if File.file?(f) && !inside_title
         inside_title = true
         current_full_dir = File.dirname(f)
@@ -30,18 +30,14 @@ class Title < ActiveRecord::Base
   end
 
   def send_text
-    # params = { :format => 'json', :text => concatenated_text, :engine => 0, :detect_language => false, :unique => false }
     params = { :text => concatenated_text, :engine => 0, :detect_language => false, :unique => false }
     res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
       if [302, 303].include? response.code
-        url = response.headers[:location]
-        RestClient.get(url.gsub("name_finder?token", "name_finder.json?token"))
+        self.gnrd_url = response.headers[:location]
+        self.status = Title::STATUS[:sent]
+        self.save!
       end
     end
-    res = JSON.parse(res, :symbolize_names => true)
-    self.gnrd_url = res[:token_url]
-    self.status = Title::STATUS[:sent]
-    self.save!
   end
 
   def get_names
