@@ -33,11 +33,13 @@ describe Title do
     title.create_pages
     title.gnrd_url.should be_nil
     title.send_text
+    title.status.should == 2
     title.gnrd_url.match(BHLIndexer::Config.gnrd_api_url).should be_true
     success = false
     while !success do 
       sleep(10)
       title.get_names
+      title.status.should == 2
       next unless title.names
       title.names.class.should == Array
       title.names.first.should == {:verbatim=>"Arachnida.", :scientificName=>"Arachnida", :offsetStart=>698, :offsetEnd=>707, :identifiedName=>"Arachnida"}
