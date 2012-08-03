@@ -43,6 +43,10 @@ class Title < ActiveRecord::Base
   def get_names
     return unless gnrd_url
     res = JSON.parse(RestClient.get(gnrd_url), :symbolize_names => true)
+    if res[:status] == 500
+      self.status = Title::STATUS[:failed]
+      self.save!
+    end
     @names = res[:names]
     @is_english = res[:english]
   end
@@ -53,7 +57,7 @@ class Title < ActiveRecord::Base
     prev_offset = 0
     current_name = @names.shift
     Title.transaction do
-      # PerfTools::CpuProfiler.start("/tmp/add_numbers_profile") do
+#      PerfTools::CpuProfiler.start("/tmp/add_numbers_profile") do
         pages_offsets.each_with_index do |offset, i|
           if current_name && current_name[:offsetStart] <= offset
             while current_name[:offsetStart] <= offset
@@ -81,10 +85,10 @@ class Title < ActiveRecord::Base
               current_name = @names.shift
               break unless current_name
             end
-          # end
+          end
           prev_offset = offset
         end
-      end
+#      end
     end
     self.status = Title::STATUS[:completed]
     self.save!

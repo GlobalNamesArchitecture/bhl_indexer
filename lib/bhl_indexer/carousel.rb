@@ -35,7 +35,7 @@ module BHLIndexer
       @carousel_ary = @carousel_ary[@cursor..-1] + @carousel_ary[0...@cursor] if @cursor != 0
       @herd_size.times do
         title = @carousel_ary.shift
-        if title
+        if title && title.status == 2
           title.get_names
           title.names ? title.names_to_pages : @carousel_ary.push(title)
         end
