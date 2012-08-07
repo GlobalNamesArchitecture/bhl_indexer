@@ -1,7 +1,8 @@
 class NameString < ActiveRecord::Base
   has_many :page_name_strings
 
-  STATUS = { init: 0, enqueued: 1, sent: 2, found: 3, not_found: 4, failed: 5 } 
+  STATUS = { init: 0, enqueued: 1, sent: 2, found: 3, not_found: 4, failed: 5 }
+
   def self.normalize(name_string)
     name_ary = name_string.split(" ")
     words_num = name_ary.size
@@ -30,4 +31,5 @@ class NameString < ActiveRecord::Base
     end
     res
   end
+
 end

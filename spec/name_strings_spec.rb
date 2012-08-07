@@ -22,6 +22,7 @@ describe NameString do
     NameString.normalize("PardOSa (PARDOSA) moesta").should == "Pardosa (Pardosa) moesta"
     NameString.normalize("Pardosa (moesta").should == "Pardosa (Moesta)"
     NameString.normalize("Pardosa (pardosa) Moesta").should == "Pardosa (Pardosa) moesta"
+    NameString.normalize("Herrick (=viridis var").should == "Herrick (=viridis) var"
     NameString.normalize("Pardosa Moesta F. vulgarÎs").should == "Pardosa moesta f. vulgarîs"
     NameString.normalize("Pardosa Moesta quercus quercus quercus Quercus").should == "Pardosa moesta quercus quercus quercus quercus"
   end
