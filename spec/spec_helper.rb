@@ -1,7 +1,10 @@
 ENV['BHL_ENV'] = 'test'
 
 require_relative '../environment.rb'
+
 require 'rspec'
+require 'ruby-prof'
+
 BHLIndexer::Config.root_file_path = File.join(File.dirname(__FILE__), 'files', 'bhl_sample')
 
 def nuke_data
@@ -11,6 +14,16 @@ def nuke_data
   Title.connection.execute("truncate table page_name_strings")
   Title.connection.execute("truncate table resolved_canonical_forms")
   Title.connection.execute("truncate table resolved_name_strings")
+end
+
+def profile_start
+  RubyProf.start
+end
+
+def profile_end
+  result = RubyProf.stop
+  printer = RubyProf::FlatPrinter.new(result)
+  printer.print(STDOUT, :min_percent => 0)
 end
 
 RSpec.configure do |config|
