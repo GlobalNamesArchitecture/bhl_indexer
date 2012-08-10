@@ -22,8 +22,6 @@ describe BHLIndexer::ResolverClient do
     @resolver.process_batch
     ResolvedCanonicalForm.count.should > 500
     ResolvedNameString.count.should > 1000
-    require 'ruby-debug'; debugger
-    puts ''
   end
 
   # it "should be able to process files which failed first time" do
