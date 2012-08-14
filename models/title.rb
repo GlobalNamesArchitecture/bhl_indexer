@@ -2,6 +2,7 @@ class Title < ActiveRecord::Base
   has_many :pages
   attr_accessor :names
   after_initialize :concatenate_pages
+  NAMES_HASH = {}
 
   STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 }
   
@@ -56,40 +57,51 @@ class Title < ActiveRecord::Base
     return if @names.blank?
     prev_offset = 0
     current_name = @names.shift
+    data = []
     Title.transaction do
-        pages_offsets.each_with_index do |offset, i|
-          if current_name && current_name[:offsetStart] <= offset
-            while current_name[:offsetStart] <= offset
-              name_offset_start = current_name[:offsetStart] - prev_offset
-              coeff = prev_offset
-              ends_next_page = false
-              if current_name[:offsetEnd] > offset
-                ends_next_page = true
-                coeff = offset
-              end
-              name_offset_end = current_name[:offsetEnd] - coeff
-#              require 'ruby-debug'; debugger if current_name[:scientificName] == false
-              if !current_name[:scientificName].empty?
-                name = NameString.normalize(current_name[:scientificName])
-                if name
+      pages_offsets.each_with_index do |offset, i|
+        if current_name && current_name[:offsetStart] <= offset
+          while current_name[:offsetStart] <= offset
+            name_offset_start = current_name[:offsetStart] - prev_offset
+            coeff = prev_offset
+            ends_next_page = false
+            if current_name[:offsetEnd] > offset
+              ends_next_page = true
+              coeff = offset
+            end
+            name_offset_end = current_name[:offsetEnd] - coeff
+            if !current_name[:scientificName].empty?
+              name = NameString.normalize(current_name[:scientificName])
+              if name
+                name_string_id = Title::NAMES_HASH[name]
+                unless name_string_id
                   name_quoted = NameString.connection.quote(name)
-                  name_string_id = NameString.connection.select_values("select id from name_strings where name = %s limit 1" % name_quoted)[0]
-                  unless name_string_id
-                    NameString.connection.execute("insert into name_strings (name, created_at, updated_at) values (%s, now(), now())" % name_quoted)
-                    name_string_id = "last_insert_id()"
-                  end
-                  PageNameString.connection.execute("insert into page_name_strings (page_id, name_string_id, name_offset_start, name_offset_end, ends_next_page, updated_at, created_at) values ('%s', %s, %s, %s, %s, now(), now())" % [pages_ids[i], name_string_id, name_offset_start, name_offset_end, ends_next_page])
+                  NameString.connection.execute("insert into name_strings (name, created_at, updated_at) values (%s, now(), now())" % name_quoted)
+                  name_string_id = NameString.connection.select_values("select last_insert_id()")[0]
+                  Title::NAMES_HASH[name] = name_string_id
+                end
+                data << ["'" + pages_ids[i] + "'", name_string_id, name_offset_start, name_offset_end, ends_next_page, 'now()', 'now()']
+                if data.size % 10000 == 0
+                  add_pages_data(data)
+                  data = []
                 end
               end
-              current_name = @names.shift
-              break unless current_name
             end
+            current_name = @names.shift
+            break unless current_name
           end
-          prev_offset = offset
         end
+        prev_offset = offset
+      end
+      add_pages_data(data)
     end
     self.status = Title::STATUS[:completed]
     self.save!
+  end
+
+  def add_pages_data(data)
+    data = data.map{|d| d.join(',')}.join('),(')
+    PageNameString.connection.execute("insert into page_name_strings (page_id, name_string_id, name_offset_start, name_offset_end, ends_next_page, updated_at, created_at) values (%s)" % data)
   end
 
   def concatenated_text

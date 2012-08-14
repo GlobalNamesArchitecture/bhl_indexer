@@ -1,1 +1,1 @@
-rvm use ruby-1.9.2-p290@bhl_indexer --create
+rvm use ruby-1.9.3-p194@bhl_indexer --create

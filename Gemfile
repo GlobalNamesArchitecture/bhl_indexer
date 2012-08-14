@@ -8,7 +8,7 @@ gem 'unicode_utils'
 
 group :test, :development do
   gem 'rspec'
-  gem 'ruby-debug19', :require => 'ruby-debug'
+  gem 'debugger'
   gem 'perftools.rb'
   gem 'rdp-ruby-prof'
 end
