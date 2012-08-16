@@ -3,12 +3,13 @@ require 'ostruct'
 require 'logger'
 require 'mysql2'
 require 'active_record'
-# require 'active_support'
+require 'active_support/all'
 require 'composite_primary_keys'
 require 'rest_client'
 require 'json'
 require 'find'
 require 'unicode_utils'
+require 'addressable/uri'
 
 module BHLIndexer
   

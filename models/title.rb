@@ -31,14 +31,40 @@ class Title < ActiveRecord::Base
   end
 
   def send_text
-    params = { :text => concatenated_text, :engine => 0, :detect_language => false, :unique => false }
-    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
-      if [302, 303].include? response.code
-        self.gnrd_url = response.headers[:location]
-        self.status = Title::STATUS[:sent]
-        self.save!
+    params = { :text => concatenated_text, :engine => 0, :detect_language => "false", :unique => "false" }
+    url = BHLIndexer::Config.gnrd_api_url
+    if url.include?("gnrd") || url.include?("128.128")
+      addressable = Addressable::URI.new
+      addressable.query_values = params
+      gz_payload = ActiveSupport::Gzip.compress(addressable.query)
+
+      uri = URI(url)
+      req = Net::HTTP::Post.new(uri.path)
+      req["Content-Encoding"] = "GZIP"
+      req["Content-Length"] = gz_payload.size
+      req["X-Uncompressed-Length"] = addressable.query.size
+      req.body = gz_payload
+
+      res = Net::HTTP.start(uri.hostname, uri.port) do |http|
+        http.request(req)
+      end
+      
+      if[302, 303].include? res.response.code.to_i
+        save_location(res.header.to_hash["location"][0])
+      end
+    else
+      res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
+        if [302, 303].include? response.code
+          save_location(response.headers[:location])
+        end
       end
     end
+  end
+  
+  def save_location(url)
+    self.gnrd_url = url
+    self.status = Title::STATUS[:sent]
+    self.save!
   end
 
   def get_names
