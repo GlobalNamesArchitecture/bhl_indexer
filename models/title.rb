@@ -69,7 +69,14 @@ class Title < ActiveRecord::Base
 
   def get_names
     return unless gnrd_url
-    res = JSON.parse(RestClient.get(gnrd_url), :symbolize_names => true)
+    res = nil
+    until res
+      begin
+        res = JSON.parse(RestClient.get(gnrd_url), :symbolize_names => true)
+      rescue RestClient::BadGateway
+        res = nil
+      end
+    end
     if res[:status] == 500
       self.status = Title::STATUS[:failed]
       self.save!

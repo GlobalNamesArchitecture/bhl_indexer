@@ -9,9 +9,14 @@ module BHLIndexer
       @herd_size = BHLIndexer::Config.carousel_size
       @carousel_ary = []
       @cursor = 0
+      @first_batch = true
     end
 
     def populate
+      if @first_batch
+        Title.connection.execute("update titles set status = %s where status != %s" % [Title::STATUS[:init], Title::STATUS[:completed]])
+        @first_batch = false
+      end
       titles = Title.where(:status => Title::STATUS[:init]).limit(@herd_size - @carousel_ary.size)
       titles.each do |t|
         t.status = Title::STATUS[:enqueued]
