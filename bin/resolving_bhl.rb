@@ -6,7 +6,7 @@
 require_relative '../environment.rb'
 
 a = 'huh?'
-q = "\nDo you REALLY want to truncate " + ResolvedNameString.count.to_s + " resolved name strings? y/n"
+q = "\nDo you REALLY want to truncate %s resolved name strings? y/n" % ResolvedNameString.count.to_s
 
 until ['y','n','yes','no','yeah','nah'].include?(a)
   puts q
@@ -20,11 +20,6 @@ if ['yes','y','yeah'].include?(a)
 end
 
 resolver = BHLIndexer::ResolverClient.new
-
-# rows_num = 1
-# until rows_num == 0
-#   rows_num = resolver.process_batch
-# end
 
 rows_num = 1
 until rows_num == 0

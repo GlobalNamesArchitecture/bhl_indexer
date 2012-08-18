@@ -6,7 +6,7 @@ require 'pp'
 
 require_relative '../environment.rb'
 a = 'huh?'
-q = "\nDo you REALLY want to truncate " + NameString.count.to_s + " namestrings and " + ResolvedNameString.count.to_s + " resolved name strings? y/n"
+q = "\nDo you REALLY want to truncate %s namestrings and %s resolved name strings? y/n" % [NameString.count.to_s, ResolvedNameString.count.to_s]
 
 until ['y','n','yes','no','yeah','nah'].include?(a)
   puts q
