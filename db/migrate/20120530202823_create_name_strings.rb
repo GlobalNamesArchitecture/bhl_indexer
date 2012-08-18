@@ -4,7 +4,6 @@ class CreateNameStrings < ActiveRecord::Migration
       `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
       `name` varchar(255) COLLATE utf8_bin DEFAULT NULL,
       `status` tinyint DEFAULT 0,
-      `resolved` tinyint DEFAULT 0,
       `created_at` datetime DEFAULT NULL,
       `updated_at` datetime DEFAULT NULL,
       PRIMARY KEY (`id`),

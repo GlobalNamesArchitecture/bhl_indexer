@@ -11,7 +11,7 @@ module BHLIndexer
       return 0 if ids_names == nil || ids_names.empty?
       ids, names = ids_names.transpose
       ids = ids.join(',')
-      NameString.connection.execute("update name_strings set status = 1 where id in (%s)" % ids)
+      NameString.connection.execute("update name_strings set status = %s where id in (%s)" % [NameString::STATUS[:enqueued], ids])
       names_batch = ids_names.map { |i| i.join("|") }.join("\n")
       resource = RestClient::Resource.new(@url, timeout: 9_000_000, open_timeout: 9_000_000, connection: "Keep-Alive")
       puts names_batch
@@ -20,12 +20,12 @@ module BHLIndexer
       if r && r[:data]
         in_curated_source = 0
         match_type = 0
-        found_records = []
+        found_ids = []
         not_found_ids = []
         records = []
         r[:data].each do |d|
           name_string_id = d[:supplied_id]
-          found_records << name_string_id
+          found_ids << name_string_id
           d[:results] = d[:results].select {|i| i[:score] > 0.5} if d[:results]
           if d[:results] && !d[:results].empty?
             data_sources, match_types = d[:results].map {|i| [i[:data_source_id], i[:match_type]]}.transpose
@@ -55,7 +55,6 @@ module BHLIndexer
             not_found_ids << name_string_id 
           end
         end
-        require 'ruby-debug'; debugger
         Title.connection.execute("INSERT IGNORE resolved_name_strings (name_string_id, data_source_id, local_id, gni_id, canonical_form_id, name, score, match_type) values (#{records.join('),(')})") unless records.empty?
         Title.connection.execute("update name_strings set status = #{NameString::STATUS[:found]}, in_curated_source = #{in_curated_source}, match_type = #{match_type} where id in (#{found_ids.join(',')})") unless found_ids.empty?
         Title.connection.execute("update name_strings set status = #{NameString::STATUS[:not_found]} where id in (#{not_found_ids.join(',')})") unless not_found_ids.empty?
