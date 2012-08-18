@@ -51,7 +51,7 @@ module BHLIndexer
               canonical_form = i[:canonical_form]
               canonical_form_id = RESOLVED_NAMES_HASH[canonical_form]
               unless canonical_form_id
-                canonical_form_id = add_hash(canonical_form)
+                canonical_form_id = add_resolved_names_hash(canonical_form)
               end
               records << [name_string_id.to_i, i[:data_source_id].to_i, i[:local_id], i[:gni_uuid], canonical_form_id, i[:name_string], i[:score].to_f * 1000, i[:match_type], Time.now, Time.now].map { |i| Title.connection.quote(i) }.join(',')
             else
@@ -59,7 +59,7 @@ module BHLIndexer
                 canonical_form = i[:canonical_form]
                 canonical_form_id = RESOLVED_NAMES_HASH[canonical_form]
                 unless canonical_form_id
-                  canonical_form_id = add_hash(canonical_form)
+                  canonical_form_id = add_resolved_names_hash(canonical_form)
                 end
                 records << [name_string_id.to_i, i[:data_source_id].to_i, i[:local_id].gsub("urn:lsid:ubio.org:namebank:",''), i[:gni_uuid] , canonical_form_id, i[:name_string], i[:score].to_f * 1000, i[:match_type], Time.now, Time.now].map {|i| Title.connection.quote(i)}.join(',')
               end
@@ -75,7 +75,7 @@ module BHLIndexer
       ids_names.size
     end
     
-    def add_hash(canonical_form)
+    def add_resolved_names_hash(canonical_form)
       name_quoted = ResolvedCanonicalForm.connection.quote(canonical_form)
       ResolvedCanonicalForm.connection.execute("insert into resolved_canonical_forms (name, created_at, updated_at) values (%s, now(), now())" % name_quoted)
       canonical_form_id = ResolvedCanonicalForm.connection.select_values("select last_insert_id()")[0]
