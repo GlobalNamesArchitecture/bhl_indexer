@@ -11,6 +11,14 @@ module BHLIndexer
       @cursor = 0
       @first_batch = true
     end
+    
+    def rebuild_names_hash
+      if Title::NAMES_HASH.empty?
+        NameString.all.each do |n|
+          Title::NAMES_HASH[n.name] = n.id
+        end
+      end
+    end
 
     def populate
       if @first_batch
@@ -40,7 +48,7 @@ module BHLIndexer
       @carousel_ary = @carousel_ary[@cursor..-1] + @carousel_ary[0...@cursor] if @cursor != 0
       @herd_size.times do
         title = @carousel_ary.shift
-        if title && title.status == Title::STATUS[:sent]
+        if title && title.status != Title::STATUS[:failed]
           title.get_names
           title.names ? title.names_to_pages : @carousel_ary.push(title)
         end
