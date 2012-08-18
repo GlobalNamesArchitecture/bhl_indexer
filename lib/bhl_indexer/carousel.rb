@@ -22,6 +22,7 @@ module BHLIndexer
 
     def populate
       if @first_batch
+        Title.connection.execute("update titles set gnrd_url = null where status = %s" % Title::STATUS[:failed])
         Title.connection.execute("update titles set status = %s where status != %s" % [Title::STATUS[:init], Title::STATUS[:completed]])
         @first_batch = false
       end

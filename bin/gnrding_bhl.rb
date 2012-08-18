@@ -6,10 +6,13 @@ require 'pp'
 
 require_relative '../environment.rb'
 a = 'huh?'
+q = "\nDo you REALLY want to truncate " + NameString.count.to_s + " namestrings and " + ResolvedNameString.count.to_s + " resolved name strings? y/n"
+
 until ['y','n','yes','no','yeah','nah'].include?(a)
-  puts 'Do you want to truncate previous results? y/n'
+  puts q
   a = gets.strip
 end
+
 if ['yes','y','yeah'].include?(a)
   Title.connection.execute("truncate table pages")
   Title.connection.execute("truncate table titles")
