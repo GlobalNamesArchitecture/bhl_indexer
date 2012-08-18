@@ -109,7 +109,6 @@ class Title < ActiveRecord::Base
                 name_string_id = Title::NAMES_HASH[name]
                 unless name_string_id
                   name_quoted = NameString.connection.quote(name)
-                  #TODO: if continued from previous error, will be Mysql2::Error: Duplicate entry errors
                   NameString.connection.execute("insert into name_strings (name, created_at, updated_at) values (%s, now(), now())" % name_quoted)
                   name_string_id = NameString.connection.select_values("select last_insert_id()")[0]
                   Title::NAMES_HASH[name] = name_string_id
