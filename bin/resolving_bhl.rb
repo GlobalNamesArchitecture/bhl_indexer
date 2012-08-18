@@ -20,6 +20,7 @@ if ['yes','y','yeah'].include?(a)
 end
 
 resolver = BHLIndexer::ResolverClient.new
+resolver.rebuild_resolved_names_hash
 
 rows_num = 1
 until rows_num == 0

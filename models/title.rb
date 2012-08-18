@@ -2,8 +2,8 @@ class Title < ActiveRecord::Base
   has_many :pages
   attr_accessor :names
   after_initialize :concatenate_pages
+  
   NAMES_HASH = {}
-
   STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 }
   
   def self.populate
