@@ -40,7 +40,7 @@ class Title < ActiveRecord::Base
 
       uri = URI(url)
       req = Net::HTTP::Post.new(uri.path)
-      req["Content-Encoding"] = "GZIP"
+      req["Content-Encoding"] = "gzip"
       req["Content-Length"] = gz_payload.size
       req["X-Uncompressed-Length"] = addressable.query.size
       req.body = gz_payload

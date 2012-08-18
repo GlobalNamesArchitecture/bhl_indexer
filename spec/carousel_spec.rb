@@ -6,8 +6,9 @@ describe BHLIndexer::Carousel do
     nuke_data
     Title.populate
     @carousel = BHLIndexer::Carousel.new
-    @carousel.herd_size = 3
-    @carousel.should_not be_nil 
+    @carousel.herd_size = 2
+    @carousel.rebuild_names_hash
+    @carousel.should_not be_nil
   end
 
   it "empty carousel should get populated with concatenated texts" do

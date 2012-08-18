@@ -1,5 +1,6 @@
 module BHLIndexer
   class ResolverClient
+    attr_accessor :batch_size
 
     CURATED_SOURCES = [1,2,3,4,5,6,7,8,9,105,132,151,155,158,163,165,167]
     RESOLVED_NAMES_HASH = {}

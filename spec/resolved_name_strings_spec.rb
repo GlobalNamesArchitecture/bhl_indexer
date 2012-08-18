@@ -10,7 +10,7 @@ describe ResolvedNameString do
   end
 
   it "should initialize" do
-    rns = ResolvedNameString.create(:name_string_id => @ns.id, :canonical_form_id => @cf.id, :name => "Pomatomus saltator", :gni_id => 59740382246565806402458658161816002818, :data_source_id => 169, :local_id => 2499763)
+    rns = ResolvedNameString.create(:name_string_id => @ns.id, :canonical_form_id => @cf.id, :name => "Pomatomus saltator", :score => 750, :gni_id => 59740382246565806402458658161816002818, :data_source_id => 169, :local_id => 2499763)
     rns.should_not be_nil
   end
 

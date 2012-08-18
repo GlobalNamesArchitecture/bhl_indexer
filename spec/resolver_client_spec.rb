@@ -6,8 +6,11 @@ describe BHLIndexer::ResolverClient do
     nuke_data
     Title.populate
     @resolver = BHLIndexer::ResolverClient.new
+    @resolver.batch_size = 25
+    @resolver.rebuild_resolved_names_hash
     @carousel = BHLIndexer::Carousel.new
-    @carousel.herd_size = 4
+    @carousel.herd_size = 3
+    @carousel.rebuild_names_hash
     @carousel.populate
     @carousel.send_texts
     until @carousel.carousel_ary.empty?
@@ -19,12 +22,10 @@ describe BHLIndexer::ResolverClient do
   it "should get information about names from resolver" do
     ResolvedCanonicalForm.count.should == 0
     ResolvedNameString.count.should == 0
-    @resolver.process_batch
-    ResolvedCanonicalForm.count.should > 500
-    ResolvedNameString.count.should > 1000
+    processed = @resolver.process_batch
+    @resolver.batch_size.should == processed
+    ResolvedCanonicalForm.count.should > 10
+    ResolvedNameString.count.should > 25
   end
 
-  # it "should be able to process files which failed first time" do
-  #   @resolver.process_failed_batches
-  # end
 end

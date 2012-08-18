@@ -5,6 +5,7 @@ describe "Concatenator" do
   before(:all) do
     @pages_path = File.join(File.dirname(__FILE__), 'files/bhl_sample/bhl1/01108casxa2200325xax4500/journalofentomol13pomo')
     @concatenator = BHLIndexer::Concatenator.new(@pages_path)
+    @concatenator.concatenate
   end
 
   it "should have list of all files to concatenate" do
@@ -12,7 +13,6 @@ describe "Concatenator" do
   end
 
   it "should concatenate files remembering where each of them starts and ends" do
-    @concatenator.concatenate
     @concatenator.concatenated_text.size.should == 189687
     @concatenator.pages_offsets.class.should == Array
     @concatenator.pages_ids.class.should == Array
@@ -21,20 +21,31 @@ describe "Concatenator" do
   end
 
   it "should have the same offsets count as TaxonFinder" do
-    @concatenator.concatenate
-    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :text => @concatenator.concatenated_text, :engine => 1, :unique => false)
-    url = JSON.parse(res, :symbolize_names => true)[:token_url]
-    sleep(20)
-    names = JSON.parse(RestClient.get(url), :symbolize_names => true)[:names]
-    @concatenator.concatenated_text[names.last[:offsetStart]..names.last[:offsetEnd]].should == names.last[:verbatim]
+    params = { :text => @concatenator.concatenated_text, :engine => 1, :unique => false, :detect_language => false }
+    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
+      response.code.should == 303
+      url = response.headers[:location]
+      url.should_not be_nil
+      if url
+        sleep(20)
+        names = JSON.parse(RestClient.get(url), :symbolize_names => true)[:names]
+        @concatenator.concatenated_text[names.last[:offsetStart]..names.last[:offsetEnd]].should == names.last[:verbatim]
+      end
+    end
   end
   
   it "should have the same offsets count as NetiNeti" do
-    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, :text => @concatenator.concatenated_text, :engine => 2, :unique => false)
-    url = JSON.parse(res, :symbolize_names => true)[:token_url]
-    sleep(20)
-    names = JSON.parse(RestClient.get(url), :symbolize_names => true)[:names]
-    @concatenator.concatenated_text[names.last[:offsetStart]..names.last[:offsetEnd]].should == names.last[:verbatim]
+    params = { :text => @concatenator.concatenated_text, :engine => 2, :unique => false, :detect_language => false }
+    res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
+      response.code.should == 303
+      url = response.headers[:location]
+      url.should_not be_nil
+      if url
+        sleep(20)
+        names = JSON.parse(RestClient.get(url), :symbolize_names => true)[:names]
+        @concatenator.concatenated_text[names.last[:offsetStart]..names.last[:offsetEnd]].should == names.last[:verbatim]
+      end
+    end
   end
 
 end

@@ -24,7 +24,7 @@ resolver.rebuild_resolved_names_hash
 
 rows_num = 1
 until rows_num == 0
-  rows_num = resolver.process_failed_batches(10)
+  rows_num = resolver.process_failed_batches(50)
 end
 
 

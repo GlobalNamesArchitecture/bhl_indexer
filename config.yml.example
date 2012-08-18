@@ -1,7 +1,7 @@
-gnrd_api_url: 'http://localhost:4567/name_finder.json'
+gnrd_api_url: 'http://gnrd.globalnames.org/name_finder.json'
 resolver_api_url: 'http://resolver.globalnames.org/name_resolvers.json'
 root_file_path: '/stuff'
-carousel_size: 20
+carousel_size: 10
 
 development:
   adapter: mysql2
@@ -23,6 +23,4 @@ production:
   user: root
   password:
   database: bhl_indexer
-  
-  
-  
+
