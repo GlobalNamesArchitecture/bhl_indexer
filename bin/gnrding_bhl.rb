@@ -26,7 +26,6 @@ if ['yes','y','yeah'].include?(a)
 end
 
 carousel = BHLIndexer::Carousel.new
-carousel.herd_size = 10
 carousel.rebuild_names_hash
 carousel.populate
 until carousel.carousel_ary.empty?
