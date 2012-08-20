@@ -69,9 +69,11 @@ module BHLIndexer
             not_found_ids << name_string_id 
           end
         end
-        Title.connection.execute("INSERT IGNORE resolved_name_strings (name_string_id, data_source_id, local_id, gni_id, canonical_form_id, name, score, match_type, created_at, updated_at) values (#{records.join('),(')})") unless records.empty?
-        Title.connection.execute("update name_strings set status = #{NameString::STATUS[:found]}, in_curated_source = #{in_curated_source}, match_type = #{match_type} where id in (#{found_ids.join(',')})") unless found_ids.empty?
-        Title.connection.execute("update name_strings set status = #{NameString::STATUS[:not_found]} where id in (#{not_found_ids.join(',')})") unless not_found_ids.empty?
+        Tite.transaction do
+          Title.connection.execute("INSERT IGNORE resolved_name_strings (name_string_id, data_source_id, local_id, gni_id, canonical_form_id, name, score, match_type, created_at, updated_at) values (#{records.join('),(')})") unless records.empty?
+          Title.connection.execute("update name_strings set status = #{NameString::STATUS[:found]}, in_curated_source = #{in_curated_source}, match_type = #{match_type} where id in (#{found_ids.join(',')})") unless found_ids.empty?
+          Title.connection.execute("update name_strings set status = #{NameString::STATUS[:not_found]} where id in (#{not_found_ids.join(',')})") unless not_found_ids.empty?
+        end
       end
       ids_names.size
     end

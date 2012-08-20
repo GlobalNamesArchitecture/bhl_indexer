@@ -80,6 +80,7 @@ class Title < ActiveRecord::Base
     if res[:status] == 500
       self.status = Title::STATUS[:failed]
       self.save!
+      reload
     end
     @names = res[:names]
     @is_english = res[:english]
@@ -87,7 +88,11 @@ class Title < ActiveRecord::Base
 
   def names_to_pages
     create_pages
-    return if @names.blank?
+    if @names.blank?
+      self.status = Title::STATUS[:completed]
+      self.save!
+      return
+    end
     prev_offset = 0
     current_name = @names.shift
     data = []
