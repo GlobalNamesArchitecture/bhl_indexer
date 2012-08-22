@@ -14,6 +14,7 @@ until ['y','n','yes','no','yeah','nah'].include?(a)
 end
 
 if ['yes','y','yeah'].include?(a)
+  puts 'Starting to populate titles'
   Title.connection.execute("truncate table pages")
   Title.connection.execute("truncate table titles")
   Title.connection.execute("truncate table name_strings")
@@ -21,8 +22,11 @@ if ['yes','y','yeah'].include?(a)
   Title.connection.execute("truncate table resolved_canonical_forms")
   Title.connection.execute("truncate table resolved_name_strings")
   Title.connection.execute("truncate table languages")
+  puts 'Getting all languages'
   Language.populate
+  puts 'Got all languages'
   Title.populate
+  puts 'Done populating titles'
 end
 
 carousel = BHLIndexer::Carousel.new

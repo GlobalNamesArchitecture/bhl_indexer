@@ -7,15 +7,19 @@ class Title < ActiveRecord::Base
   STATUS = { init: 0, enqueued: 1, sent: 2, completed: 3, failed: 4 }
   
   def self.populate
+    # self.connection.execute("set profiling = 1")
     root_path = BHLIndexer::Config.root_file_path
     Dir.chdir(root_path)
     inside_title = false
     current_full_dir = nil
     current_internet_archive_id = nil
     current_title = nil
+    count = 0
     Find.find(".").each do |f|
       next if f.include? "DS_Store"
       if File.file?(f) && !inside_title
+        count += 1
+        puts "Adding title %s" % count if count % 100 == 0
         inside_title = true
         current_full_dir = File.dirname(f)
         current_internet_archive_id = current_full_dir.split("/")[-1]
