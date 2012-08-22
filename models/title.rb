@@ -23,7 +23,7 @@ class Title < ActiveRecord::Base
         current_full_dir = File.dirname(f)
         current_internet_archive_id = current_full_dir.split("/")[-1]
         language = Language.find_by_internet_archive_id(current_internet_archive_id).name rescue nil
-        Title.connection.execute("insert into titles (path, internet_archive_id, language) values (%s, %s, %s)" % [Title.connection.quote(current_full_dir), Title.connection.quote(current_internet_archive_id), Title.connection.quote(language)])
+        Title.connection.execute("insert into titles (path, internet_archive_id, language, created_at, updated_at) values (%s, %s, %s, now(), now())" % [Title.connection.quote(current_full_dir), Title.connection.quote(current_internet_archive_id), Title.connection.quote(language)])
       elsif !File.file?(f) && inside_title
         inside_title = false
       end
