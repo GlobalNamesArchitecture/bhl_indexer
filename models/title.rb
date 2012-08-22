@@ -51,11 +51,15 @@ class Title < ActiveRecord::Base
       
       if[302, 303].include? res.response.code.to_i
         save_location(res.header.to_hash["location"][0])
+      else
+        save_failed
       end
     else
       res = RestClient.post(BHLIndexer::Config.gnrd_api_url, params) do |response, request, result, &block|
         if [302, 303].include? response.code
           save_location(response.headers[:location])
+        else
+          save_failed
         end
       end
     end
@@ -64,6 +68,11 @@ class Title < ActiveRecord::Base
   def save_location(url)
     self.gnrd_url = url
     self.status = Title::STATUS[:sent]
+    self.save!
+  end
+  
+  def save_failed
+    self.status = Title::STATUS[:failed]
     self.save!
   end
 
