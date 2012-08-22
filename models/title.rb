@@ -13,7 +13,6 @@ class Title < ActiveRecord::Base
     inside_title = false
     current_full_dir = nil
     current_internet_archive_id = nil
-    current_title = nil
     count = 0
     Find.find(".").each do |f|
       next if f.include? "DS_Store"
@@ -24,10 +23,7 @@ class Title < ActiveRecord::Base
         current_full_dir = File.dirname(f)
         current_internet_archive_id = current_full_dir.split("/")[-1]
         language = Language.find_by_internet_archive_id(current_internet_archive_id).name rescue nil
-        current_title = Title.create(:path => current_full_dir, :internet_archive_id => current_internet_archive_id, :language => language)
-        # Page.create(:title_id => current_title, :page_id => File.basename(f, '.txt'))
-      # elsif File.file?(f) && inside_title
-      #   Page.create(:title_id => current_title.id, :page_id => File.basename(f, '.txt'))
+        Title.connection.execute("insert into titles (path, internet_archive_id, language) values (%s, %s, %s)" % [Title.connection.quote(current_full_dir), Title.connection.quote(current_internet_archive_id), Title.connection.quote(language)])
       elsif !File.file?(f) && inside_title
         inside_title = false
       end
