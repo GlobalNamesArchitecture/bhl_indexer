@@ -16,7 +16,7 @@ end
 pid = nil
 if ['yes','y','yeah'].include?(a)
   pid  = POSIX::Spawn::spawn(File.join(BHLIndexer::Config.root_path, 'bin', 'populate_titles.rb'))
-  sleep(100)
+  sleep(30)
 end
 
 carousel = BHLIndexer::Carousel.new
