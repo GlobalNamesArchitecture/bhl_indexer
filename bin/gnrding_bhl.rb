@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'pp'
+require 'posix/spawn'
 # encoding: utf-8
 
 #use BHL_ENV to setup the environment: BHL_ENV=test ./gnrding_bhl.rb
@@ -12,21 +13,10 @@ until ['y','n','yes','no','yeah','nah'].include?(a)
   puts q
   a = gets.strip
 end
-
+pid = nil
 if ['yes','y','yeah'].include?(a)
-  puts 'Starting to populate titles'
-  Title.connection.execute("truncate table pages")
-  Title.connection.execute("truncate table titles")
-  Title.connection.execute("truncate table name_strings")
-  Title.connection.execute("truncate table page_name_strings")
-  Title.connection.execute("truncate table resolved_canonical_forms")
-  Title.connection.execute("truncate table resolved_name_strings")
-  Title.connection.execute("truncate table languages")
-  puts 'Getting all languages'
-  Language.populate
-  puts 'Got all languages'
-  Title.populate
-  puts 'Done populating titles'
+  pid  = POSIX::Spawn::spawn(File.join(BHLIndexer::Config.root_path, 'bin', 'populate_titles.rb'))
+  sleep(100)
 end
 
 carousel = BHLIndexer::Carousel.new
@@ -41,3 +31,4 @@ until carousel.carousel_ary.empty?
 end
 
 
+Process::waitpid(pid) if pid
