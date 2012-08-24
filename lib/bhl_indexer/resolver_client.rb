@@ -1,5 +1,7 @@
 require 'thread'
 
+mutex = Mutex.new
+
 module BHLIndexer
   class ResolverClient
     attr_accessor :batch_size
