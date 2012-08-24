@@ -25,6 +25,7 @@ describe BHLIndexer::ResolverClient do
     processed = @resolver.process_batch
     @resolver.batch_size.should == processed
     ResolvedCanonicalForm.count.should > 10
+    require 'ruby-debug'; debugger
     ResolvedNameString.count.should > 25
   end
 
