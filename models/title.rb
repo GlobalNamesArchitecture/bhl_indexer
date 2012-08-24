@@ -147,6 +147,7 @@ class Title < ActiveRecord::Base
   end
 
   def add_pages_data(data)
+    return if data.empty?
     data = data.map{|d| d.join(',')}.join('),(')
     PageNameString.connection.execute("insert into page_name_strings (page_id, name_string_id, name_offset_start, name_offset_end, ends_next_page, updated_at, created_at) values (%s)" % data)
   end
