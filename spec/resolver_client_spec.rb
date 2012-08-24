@@ -7,7 +7,6 @@ describe BHLIndexer::ResolverClient do
     Title.populate
     @resolver = BHLIndexer::ResolverClient.new
     @resolver.batch_size = 25
-    @resolver.rebuild_resolved_names_hash
     @carousel = BHLIndexer::Carousel.new
     @carousel.herd_size = 3
     @carousel.rebuild_names_hash
@@ -25,8 +24,7 @@ describe BHLIndexer::ResolverClient do
     processed = @resolver.process_batch
     @resolver.batch_size.should == processed
     ResolvedCanonicalForm.count.should > 10
-    require 'ruby-debug'; debugger
-    ResolvedNameString.count.should > 25
+    ResolvedNameString.count.should > 20
   end
 
 end
