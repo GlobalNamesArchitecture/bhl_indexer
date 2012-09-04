@@ -18,9 +18,19 @@ module BHLIndexer
       resource = RestClient::Resource.new(@url, timeout: 9_000_000, open_timeout: 9_000_000, connection: "Keep-Alive")
       r = resource.post(:data => names_batch, :with_context => false, :resolve_once => false)
       r = JSON.parse(r, :symbolize_names => true) rescue nil
-      if r && r[:data]
-        rr = ResolverResult.new(r)
-        rr.process
+      if r
+        if !r[:data] && r[:url]
+          res = nil
+          until res
+            sleep(2)
+            res = JSON.parse(RestClient.get(r[:url]), :symbolize_names => true)[:data]
+          end
+          r[:data] = res
+        end
+        if r[:data]
+          rr = ResolverResult.new(r)
+          rr.process
+        end
       end
       ids_names.size
     end
