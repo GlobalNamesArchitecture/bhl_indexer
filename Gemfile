@@ -11,9 +11,7 @@ gem 'addressable'
 group :test, :development do
   gem 'rake'
   gem 'rspec'
-  gem 'debugger'
-  gem 'perftools.rb'
-  gem 'rdp-ruby-prof'
+  gem 'byebug'
 end
 
 
