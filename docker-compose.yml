@@ -10,22 +10,14 @@ services:
       - "config/env.sh"
     links:
       - db
-      - webpack
   db:
-    image: postgres:9.6
+    image: mysql:5.7
     ports:
-      - "0.0.0.0:15432:5432"
-    volumes:
-      - pg:/var/lib/postgres/data
-  webpack:
-    build: .
+      - "0.0.0.0:13306:3306"
     env_file:
       - "config/env.sh"
-    command: bash -c "npm run refresh && npm run start -- --host=0.0.0.0 --port=8080"
     volumes:
-      - .:/app
-    ports:
-      - '8080:8080'
+      - db:/var/lib/mysql
 volumes:
-  pg:
+  db:
     external: false

@@ -12,7 +12,7 @@ require 'unicode_utils'
 require 'addressable/uri'
 
 module BHLIndexer
-  
+
   def self.symbolize_keys(obj)
     if obj.class == Array
       obj.map {|o| BHLIndexer.symbolize_keys(o)}
@@ -24,7 +24,7 @@ module BHLIndexer
   end
 
   root_path = File.expand_path(File.dirname(__FILE__))
-  CONF_DATA = BHLIndexer.symbolize_keys(YAML.load(open(File.join(root_path, 'config.yml')).read))
+  CONF_DATA = BHLIndexer.symbolize_keys(YAML.load(open(File.join(root_path, 'config', 'config.yml')).read))
   conf = CONF_DATA
   environment = ENV['BHL_ENV'] || 'development'
   Config = OpenStruct.new(
