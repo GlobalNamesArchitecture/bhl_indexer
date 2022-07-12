@@ -1,7 +1,7 @@
 source 'http://rubygems.org'
 
 gem 'mysql2'
-gem "activerecord", "~> 3.2.3"
+gem "activerecord", "~> 3.2.22"
 gem 'rest-client'
 gem "composite_primary_keys", ">= 4.0.0"
 gem 'unicode_utils'
